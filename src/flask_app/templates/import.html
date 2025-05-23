@@ -6,27 +6,16 @@
   <div id="alert-placeholder"></div>
 
   <ul class="nav nav-tabs mt-3" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" data-bs-toggle="tab" href="#tab-all">Общий импорт</a>
-    </li>
     {% for tbl in tables %}
     <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="tab" href="#tab-{{ tbl }}">{{ tbl }}</a>
+      <a class="nav-link {% if loop.first %}active{% endif %}" data-bs-toggle="tab" href="#tab-{{ tbl }}">{{ tbl }}</a>
     </li>
     {% endfor %}
   </ul>
 
   <div class="tab-content border p-3">
-    <div class="tab-pane fade show active" id="tab-all">
-      <form class="import-form" data-table="">
-        <div class="mb-3">
-          <input class="form-control" type="file" name="file" accept=".csv" required>
-        </div>
-        <button class="btn btn-success" type="submit">Загрузить общим импортом</button>
-      </form>
-    </div>
     {% for tbl in tables %}
-    <div class="tab-pane fade" id="tab-{{ tbl }}">
+    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="tab-{{ tbl }}">
       <form class="import-form" data-table="{{ tbl }}">
         <div class="mb-3">
           <input class="form-control" type="file" name="file" accept=".csv" required>
@@ -43,7 +32,7 @@
         e.preventDefault();
         const alertBox = document.getElementById('alert-placeholder');
         alertBox.innerHTML = '';
-        const file = form.querySelector('input[type=file]').files[0];
+        const file = form.querySelector('input[type=file]').nfiles[0];
         if (!file) return;
         const data = new FormData();
         data.append('file', file);
