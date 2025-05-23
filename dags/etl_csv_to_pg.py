@@ -1,21 +1,24 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from psycopg2.extras import execute_values
+from dotenv import load_dotenv
 from datetime import datetime
 import pandas as pd
 import numpy as np
 import os
 import psycopg2
-from psycopg2.extras import execute_values
 
 # Папка, куда Flask сохраняет CSV
 UPLOAD_FOLDER = '/opt/airflow/dags/src/flask_app/uploads'
 
-# Параметры подключения к базе
-DB_HOST = "89.169.3.174"
-DB_PORT = "5434"
-DB_NAME = "warehouse_superset"
-DB_USER = "wh_admin_xam"
-DB_PASS = "красавчики2025"
+load_dotenv()
+
+DB_HOST = os.getenv('POSTGRES_WH_HOST')
+DB_PORT = os.getenv('POSTGRES_WH_PORT')
+DB_NAME = os.getenv('POSTGRES_WH_DB')
+DB_USER = os.getenv('POSTGRES_WH_USER')
+DB_PASS = os.getenv('POSTGRES_WH_PASSWORD')
+
 
 def get_connection():
     return psycopg2.connect(
@@ -23,6 +26,7 @@ def get_connection():
         dbname=DB_NAME, user=DB_USER,
         password=DB_PASS
     )
+
 
 def extract(**kwargs):
     conf = kwargs['dag_run'].conf or {}
@@ -43,17 +47,20 @@ def extract(**kwargs):
     ti.xcom_push(key='raw_data', value=df.to_json())
     ti.xcom_push(key='table', value=table)
 
+
 def transform(**kwargs):
     ti = kwargs['ti']
     df = pd.read_json(ti.xcom_pull(key='raw_data'))
 
-    # Нормализуем имена колонок
-    df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+    df.columns = [
+        col.strip().lower().replace(' ', '_')
+        for col in df.columns
+    ]
 
-    # Заменяем все NaN на None (хотя мы снова приведём их позже)
     df = df.where(df.notna(), None)
 
     ti.xcom_push(key='clean_data', value=df.to_json())
+
 
 def ensure_bigint_columns(cur, table, df):
     for col in df.columns:
@@ -64,6 +71,7 @@ def ensure_bigint_columns(cur, table, df):
                 )
             except Exception:
                 pass  # Уже BIGINT или недостаточно прав
+
 
 def load_to_db(**kwargs):
     ti = kwargs['ti']
@@ -92,9 +100,11 @@ def load_to_db(**kwargs):
     cur.close()
     conn.close()
 
+
 def load_to_file(**kwargs):
     # Не используется, оставлено для совместимости
     pass
+
 
 default_args = {'start_date': datetime(2023, 1, 1)}
 

@@ -3,3 +3,4 @@ psycopg2-binary
 clickhouse-connect
 apache-airflow
 mimesis
+python-dotenv

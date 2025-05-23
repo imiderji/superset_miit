@@ -21,6 +21,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from dotenv import load_dotenv
+
 
 # =========== Настройки папки для загрузки CSV ==========
 UPLOAD_FOLDER = '/opt/airflow/dags/src/flask_app/uploads'
@@ -41,11 +43,14 @@ if not os.path.isfile(dejavu_path):
 pdfmetrics.registerFont(TTFont('DejaVuSans', dejavu_path))
 
 # =========== Параметры БД (замените на свои) ==========
-DB_HOST = "89.169.3.174"
-DB_PORT = "5434"
-DB_NAME = "warehouse_superset"
-DB_USER = "wh_admin_xam"
-DB_PASS = "красавчики2025"
+load_dotenv()
+
+DB_HOST = os.getenv('POSTGRES_WH_HOST')
+DB_PORT = os.getenv('POSTGRES_WH_PORT')
+DB_NAME = os.getenv('POSTGRES_WH_DB')
+DB_USER = os.getenv('POSTGRES_WH_USER')
+DB_PASS = os.getenv('POSTGRES_WH_PASSWORD')
+
 
 def get_connection():
     return psycopg2.connect(
@@ -54,10 +59,10 @@ def get_connection():
         password=DB_PASS
     )
 
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Схемы таблиц
 TABLE_SCHEMAS = {
     'products': ['row_id','product_id','product_name','category','subcategory'],
     'shipment': ['ship_id','ship_date','ship_mode','ship_cost','quantity','deal_id'],
@@ -67,12 +72,12 @@ TABLE_SCHEMAS = {
     'customers': ['row_id','customer_id','customer_name','segment','loc_info_id']
 }
 
-# === 1. Главная страница ===
+
 @app.route('/')
 def home():
     return render_template('home.html')
 
-# === 2. Импорт CSV-файлов (общий и по таблицам) ===
+
 @app.route('/import', methods=['GET', 'POST'])
 def import_csv():
     tables = list(TABLE_SCHEMAS.keys())
@@ -105,25 +110,24 @@ def import_csv():
 
     return render_template('import.html', tables=tables)
 
-# === 3. Ручной ввод ===
+
 @app.route('/manual')
 def manual():
     return render_template('manual.html')
 
-# API для ручного ввода: вставка данных
+
 @app.route('/api/<table_name>', methods=['POST'])
 def api_insert(table_name):
     if table_name not in TABLE_SCHEMAS:
         return jsonify({'status':'error','message':'Неверная таблица'}),400
     data = request.get_json()
     columns = TABLE_SCHEMAS[table_name]
-    # Проверим, что все поля присутствуют
     values = []
     for col in columns:
         if col not in data:
             return jsonify({'status':'error','message':f'Отсутствует поле {col}'}),400
         values.append(data[col])
-    # Построим INSERT
+
     cols_sql = ','.join(columns)
     placeholders = ','.join(['%s']*len(columns))
     sql = f"INSERT INTO {table_name} ({cols_sql}) VALUES ({placeholders})"
@@ -138,7 +142,7 @@ def api_insert(table_name):
     except Exception as e:
         return jsonify({'status':'error','message':str(e)}),500
 
-# === 4. Показ таблиц ===
+
 @app.route('/tables/')
 @app.route('/tables/<table_name>')
 def show_table(table_name=None):
@@ -165,7 +169,7 @@ def show_table(table_name=None):
         error=error
     )
 
-# === 5. Формирование PDF-отчёта (ReportLab) ===
+
 @app.route('/report', methods=['GET','POST'])
 def report():
     if request.method == 'POST':
@@ -210,6 +214,7 @@ def report():
         resp.headers['Content-Disposition'] = f"attachment; filename=\"{ascii_filename}\"; filename*=UTF-8''{encoded}"
         return resp
     return render_template('report.html')
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

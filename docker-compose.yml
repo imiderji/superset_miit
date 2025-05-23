@@ -142,6 +142,8 @@ services:
     container_name: flask-upload
     volumes:
       - ./src:/opt/airflow/dags/src
+    env_file:
+      - .env
     ports:
       - "5000:5000"
     depends_on:
