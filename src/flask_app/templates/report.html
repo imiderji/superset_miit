@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Отчет{% endblock %}
+
+{% block content %}
+  <h2>Формирование отчета</h2>
+  <form id="report-form" method="post">
+    <div class="mb-3">
+      <label for="markdown" class="form-label"></label>
+      <textarea id="markdown" name="markdown" class="form-control" rows="10"></textarea>
+    </div>
+    <button type="button" class="btn btn-secondary me-2" id="preview-btn">Предпросмотр</button>
+    <button type="submit" class="btn btn-primary">Сохранить PDF</button>
+  </form>
+  <div id="preview" class="border p-3 mt-4"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('preview-btn').addEventListener('click', () => {
+        const md = document.getElementById('markdown').value;
+        document.getElementById('preview').innerHTML = marked.parse(md);
+      });
+    });
+  </script>
+{% endblock %}

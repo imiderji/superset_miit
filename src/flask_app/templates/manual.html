@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block title %}Ручной ввод{% endblock %}
+
+{% block content %}
+  <h3>Ручной ввод данных</h3>
+
+  <div class="mb-3">
+    <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalProducts">products</button>
+    <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalShipment">shipment</button>
+    <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalOrders">orders</button>
+    <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalSales">sales</button>
+    <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#modalLocation">location_info</button>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalCustomers">customers</button>
+  </div>
+
+  <!-- Products -->
+  <div class="modal fade" id="modalProducts" tabindex="-1" aria-labelledby="labelProducts" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <form id="formProducts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="labelProducts">Добавить в products</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert-placeholder"></div>
+          <div class="mb-3"><label class="form-label">row_id</label><input type="number" class="form-control" name="row_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">product_id</label><input type="text"   class="form-control" name="product_id" maxlength="16" required></div>
+          <div class="mb-3"><label class="form-label">product_name</label><input type="text" class="form-control" name="product_name" required></div>
+          <div class="mb-3"><label class="form-label">category</label><input type="text"     class="form-control" name="category" maxlength="20" required></div>
+          <div class="mb-3"><label class="form-label">subcategory</label><input type="text"  class="form-control" name="subcategory" maxlength="20"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button class="btn btn-primary"   type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- Shipment -->
+  <div class="modal fade" id="modalShipment" tabindex="-1" aria-labelledby="labelShipment" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <form id="formShipment">
+        <div class="modal-header">
+          <h5 class="modal-title" id="labelShipment">Добавить в shipment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert-placeholder"></div>
+          <div class="mb-3"><label class="form-label">ship_id</label><input type="number" class="form-control" name="ship_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">ship_date</label><input type="date"   class="form-control" name="ship_date" required></div>
+          <div class="mb-3"><label class="form-label">ship_mode</label><input type="text"   class="form-control" name="ship_mode" maxlength="14" required></div>
+          <div class="mb-3"><label class="form-label">ship_cost</label><input type="number" class="form-control" name="ship_cost" step="0.01" required></div>
+          <div class="mb-3"><label class="form-label">quantity</label><input type="number"   class="form-control" name="quantity" step="1" required></div>
+          <div class="mb-3"><label class="form-label">deal_id</label><input type="number"   class="form-control" name="deal_id" step="1" required></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button class="btn btn-primary"   type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- Orders -->
+  <div class="modal fade" id="modalOrders" tabindex="-1" aria-labelledby="labelOrders" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <form id="formOrders">
+        <div class="modal-header">
+          <h5 class="modal-title" id="labelOrders">Добавить в orders</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert-placeholder"></div>
+          <div class="mb-3"><label class="form-label">row_id</label><input type="number" class="form-control" name="row_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">deal_id</label><input type="number" class="form-control" name="deal_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">loc_info_id</label><input type="number" class="form-control" name="loc_info_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">customer_id</label><input type="text" class="form-control" name="customer_id" maxlength="10" required></div>
+          <div class="mb-3"><label class="form-label">order_priority</label><input type="text" class="form-control" name="order_priority" maxlength="8" required></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button class="btn btn-primary"   type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- Sales -->
+  <div class="modal fade" id="modalSales" tabindex="-1" aria-labelledby="labelSales" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <form id="formSales">
+        <div class="modal-header">
+          <h5 class="modal-title" id="labelSales">Добавить в sales</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert-placeholder"></div>
+          <div class="mb-3"><label class="form-label">deal_id</label><input type="number" class="form-control" name="deal_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">deal_date</label><input type="date"   class="form-control" name="deal_date" required></div>
+          <div class="mb-3"><label class="form-label">product_id</label><input type="text" class="form-control" name="product_id" maxlength="16" required></div>
+          <div class="mb-3"><label class="form-label">market</label><input type="text"   class="form-control" name="market" maxlength="6" required></div>
+          <div class="mb-3"><label class="form-label">sale_price</label><input type="number" class="form-control" name="sale_price" step="0.01" required></div>
+          <div class="mb-3"><label class="form-label">discount</label><input type="number" class="form-control" name="discount" step="0.01"></div>
+          <div class="mb-3"><label class="form-label">profit</label><input type="number" class="form-control" name="profit" step="0.01" required></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button class="btn btn-primary"   type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- Location -->
+  <div class="modal fade" id="modalLocation" tabindex="-1" aria-labelledby="labelLocation" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <form id="formLocation">
+        <div class="modal-header">
+          <h5 class="modal-title" id="labelLocation">Добавить в location_info</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert-placeholder"></div>
+          <div class="mb-3"><label class="form-label">loc_info_id</label><input type="number" class="form-control" name="loc_info_id" step="1" required></div>
+          <div class="mb-3"><label class="form-label">city</label><input type="text" class="form-control" name="city" maxlength="40" required></div>
+          <div class="mb-3"><label class="form-label">region</label><input type="text" class="form-control" name="region" maxlength="20" required></div>
+          <div class="mb-3"><label class="form-label">country</label><input type="text" class="form-control" name="country" maxlength="35" required></div>
+          <div class="mb-3"><label class="form-label">postal_code</label><input type="number" class="form-control" name="postal_code" step="1"></div>
+          <div class="mb-3"><label class="form-label">customer_id</label><input type="text" class="form-control" name="customer_id" maxlength="19" required></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button class="btn btn-primary"   type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div></div>
+  </div>
+
+  <!-- Customers -->
+    <div class="modal fade" id="modalCustomers" tabindex="-1" aria-labelledby="labelCustomers" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+        <form id="formCustomers">
+        <div class="modal-header">
+            <h5 class="modal-title" id="labelCustomers">Добавить в customers</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <div class="alert-placeholder"></div>
+            <div class="mb-3">
+            <label class="form-label">row_id</label>
+            <input type="number" class="form-control" name="row_id" step="1" required>
+            </div>
+            <div class="mb-3">
+            <label class="form-label">customer_id</label>
+            <input type="text" class="form-control" name="customer_id" maxlength="10" required>
+            </div>
+            <div class="mb-3">
+            <label class="form-label">customer_name</label>
+            <input type="text" class="form-control" name="customer_name">
+            </div>
+            <div class="mb-3">
+            <label class="form-label">segment</label>
+            <input type="text" class="form-control" name="segment" maxlength="11" required>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+        </div>
+        </form>
+    </div></div>
+    </div>
+
+
+  <!-- JS-обработчики форм -->
+  <script>
+    ['Products','Shipment','Orders','Sales','Location','Customers'].forEach(name => {
+        const form = document.getElementById(`form${name}`);
+        if (!form) return;
+        form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form));
+
+        let response;
+        try {
+            response = await fetch(`/api/${name.toLowerCase()}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+            });
+        } catch (networkError) {
+            // Сетевая ошибка
+            showAlert('danger', `Сетевая ошибка: ${networkError.message}`);
+            return;
+        }
+
+        const placeholder = form.querySelector('.alert-placeholder');
+        placeholder.innerHTML = '';  // чистим предыдущие алерты
+
+        if (!response.ok) {
+            // Сервер вернул 4xx/5xx
+            let errText = await response.text().catch(() => response.statusText);
+            showAlert('danger', `Ошибка ${response.status}: ${errText}`);
+            return;
+        }
+
+        // Всё успешно — скрываем модалку и показываем зелёный алерт
+        bootstrap.Modal.getInstance(document.getElementById(`modal${name}`)).hide();
+        showAlert('success', `Данные для ${name.toLowerCase()} добавлены.`);
+        
+        // Вспомогательная функция
+        function showAlert(type, message) {
+            const alertBox = document.createElement('div');
+            alertBox.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+            alertBox.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            placeholder.append(alertBox);
+        }
+        });
+    });
+    </script>
+
+
+{% endblock %}

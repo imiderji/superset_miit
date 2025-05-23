@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Логистическая панель{% endblock %}
+
+{% block content %}
+  <h1 class="text-center mb-5">Логистическая панель</h1>
+  <div class="d-flex justify-content-center gap-3">
+    <a href="{{ url_for('show_table') }}"     class="btn btn-primary btn-lg">ПОКАЗ ТАБЛИЦ</a>
+    <a href="{{ url_for('manual') }}"         class="btn btn-secondary btn-lg">РУЧНОЙ ВВОД</a>
+    <a href="{{ url_for('import_csv') }}"     class="btn btn-success btn-lg">ИМПОРТ ФАЙЛОВ</a>
+    <a href="{{ url_for('report') }}"         class="btn btn-info btn-lg">ОТЧЕТ PDF</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Импорт CSV{% endblock %}
+
+{% block content %}
+  <h2>Импорт CSV-файлов</h2>
+  <div id="alert-placeholder"></div>
+
+  <ul class="nav nav-tabs mt-3" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#tab-all">Общий импорт</a>
+    </li>
+    {% for tbl in tables %}
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#tab-{{ tbl }}">{{ tbl }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content border p-3">
+    <div class="tab-pane fade show active" id="tab-all">
+      <form class="import-form" data-table="">
+        <div class="mb-3">
+          <input class="form-control" type="file" name="file" accept=".csv" required>
+        </div>
+        <button class="btn btn-success" type="submit">Загрузить общим импортом</button>
+      </form>
+    </div>
+    {% for tbl in tables %}
+    <div class="tab-pane fade" id="tab-{{ tbl }}">
+      <form class="import-form" data-table="{{ tbl }}">
+        <div class="mb-3">
+          <input class="form-control" type="file" name="file" accept=".csv" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Импорт в {{ tbl }}</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    document.querySelectorAll('.import-form').forEach(form => {
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const alertBox = document.getElementById('alert-placeholder');
+        alertBox.innerHTML = '';
+        const file = form.querySelector('input[type=file]').files[0];
+        if (!file) return;
+        const data = new FormData();
+        data.append('file', file);
+        if (form.dataset.table) data.append('table', form.dataset.table);
+        try {
+          const resp = await fetch('/import', { method:'POST', body:data });
+          const res = await resp.json();
+          const cls = res.status==='success'?'success':'danger';
+          alertBox.innerHTML = `
+            <div class="alert alert-${cls} alert-dismissible fade show mt-3">
+              ${res.message}
+              <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        } catch {
+          alertBox.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show mt-3">
+              Сетевая или серверная ошибка.
+              <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        }
+      });
+    });
+  </script>
+{% endblock %}

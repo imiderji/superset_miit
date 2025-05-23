@@ -1,0 +1,154 @@
+version: '3.9'
+
+services:
+
+  warehouse-pg:
+    image: postgis/postgis:latest
+    container_name: warehouse-pg
+    environment:
+      POSTGRES_USER: ${POSTGRES_WH_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_WH_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_WH_DB}
+    ports:
+      - '5434:5432'
+    volumes:
+      - warehouse-pg:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_WH_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  analytics-pg:
+    image: postgis/postgis:latest
+    container_name: analytics-pg
+    environment:
+      POSTGRES_USER: ${POSTGRES_A_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_A_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_A_DB}
+    ports:
+      - '5432:5432'
+    volumes:
+      - analytics-pg:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_A_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  superset:
+    build:
+      context: .
+      dockerfile: Dockerfile.superset
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_LOAD_EXAMPLES: "no"
+      SUPERSET_SECRET_KEY: "a_very_secret_key"
+    volumes:
+      - superset_home:/app/superset_home
+    depends_on:
+      - analytics-pg
+    restart: always
+    command: >
+      bash -c "
+        superset db upgrade &&
+        superset fab create-admin --username ${OUR_USERNAME} --firstname Superset --lastname Admin --email 2025KPACAB4uKu@superset.com --password ${OUR_PASSWORD} &&
+        superset init &&
+        superset run -h 0.0.0.0 -p 8088
+      "
+
+  airflow-postgres:
+    image: postgres:latest
+    container_name: airflow-postgres
+    environment:
+      POSTGRES_USER: ${OUR_USERNAME}
+      POSTGRES_PASSWORD: ${OUR_PASSWORD}
+      POSTGRES_DB: airflow_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - airflow_pg_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: custom_airflow
+    container_name: airflow-webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${OUR_USERNAME}:${OUR_PASSWORD}@airflow-postgres:5432/airflow_db
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/dags/src
+    env_file:
+      - .env
+    restart: always
+    command: >
+      bash -c "
+        rm -f /opt/airflow/airflow-webserver.pid && \
+        airflow db upgrade && \
+        airflow users create --username ${OUR_USERNAME} --password ${OUR_PASSWORD} --firstname Admin --lastname User --role Admin --email 2025KPACAB4uKu@example.com || true && \
+        exec airflow webserver
+      "
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: custom_airflow
+    container_name: airflow-scheduler
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${OUR_USERNAME}:${OUR_PASSWORD}@airflow-postgres:5432/airflow_db
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/dags/src
+    env_file:
+      - .env
+    restart: always
+    command: >
+      bash -c "
+        airflow db upgrade && \
+        exec airflow scheduler
+      "
+  flask-upload:
+    build:
+      context: ./src/flask_app
+      dockerfile: Dockerfile.flask
+    container_name: flask-upload
+    volumes:
+      - ./src:/opt/airflow/dags/src
+    ports:
+      - "5000:5000"
+    depends_on:
+      - airflow-webserver
+
+volumes:
+  warehouse-pg:
+  analytics-pg:
+  superset_home:
+  airflow_pg_data:
